@@ -1,13 +1,14 @@
 package jm.task.core.jdbc.dao;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
+
+import jakarta.persistence.Query;
 import jm.task.core.jdbc.model.User;
 import jm.task.core.jdbc.util.HibernateUtil;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.query.NativeQuery;
+
 
 import java.util.List;
 
@@ -16,7 +17,8 @@ public class UserDaoHibernateImpl implements UserDao {
 
     SessionFactory sessionFactory = HibernateUtil.getSessionFactory();
 
-    public UserDaoHibernateImpl() {}
+    public UserDaoHibernateImpl() {
+    }
 
     @Override
     public void createUsersTable() {
@@ -40,7 +42,7 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void saveUser(String name, String lastName, byte age) {
-        User user = new User(name,lastName,age);
+        User user = new User(name, lastName, age);
         Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
         session.persist(user);
@@ -50,20 +52,20 @@ public class UserDaoHibernateImpl implements UserDao {
 
     @Override
     public void removeUserById(long id) {
-        User user = new User();
-        user.setId(id);
         Session session = sessionFactory.openSession();
-        session.remove(user);
+        Transaction transaction = session.beginTransaction();
+        Query query = session.createNativeQuery("delete from user where id = " + id, User.class);
+        query.executeUpdate();
+        transaction.commit();
         session.close();
     }
 
     @Override
     public List<User> getAllUsers() {
         Session session = sessionFactory.openSession();
-        CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
-        CriteriaQuery <User> criteriaQuery = criteriaBuilder.createQuery(User.class);
-        criteriaQuery.from(User.class);
-        List <User> userList = session.createQuery(criteriaQuery).getResultList();
+        Transaction transaction = session.beginTransaction();
+        List<User> userList = session.createNativeQuery("select * from User", User.class).list();
+        transaction.commit();
         session.close();
         return userList;
     }
