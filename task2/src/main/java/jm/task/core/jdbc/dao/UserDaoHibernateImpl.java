@@ -54,7 +54,8 @@ public class UserDaoHibernateImpl implements UserDao {
     public void removeUserById(long id) {
         Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
-        Query query = session.createNativeQuery("delete from user where id = " + id, User.class);
+
+        Query query =  session.createQuery("delete  from User u where u.id = " + id);
         query.executeUpdate();
         transaction.commit();
         session.close();
@@ -64,7 +65,7 @@ public class UserDaoHibernateImpl implements UserDao {
     public List<User> getAllUsers() {
         Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
-        List<User> userList = session.createNativeQuery("select * from User", User.class).list();
+        List<User> userList = session.createQuery("select u from User u", User.class).list();
         transaction.commit();
         session.close();
         return userList;
